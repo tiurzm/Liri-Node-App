@@ -1,10 +1,12 @@
 // LIRI will search Spotify for songs, Bands in Town for concerts, and OMDB for movies.
 
-// require("dotenv").config();
-// var keys = require("./keys.js");
-// var spotify = new Spotify(keys.spotify);
+require("dotenv").config();
+var keys = require("./keys.js");
+var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify);
 
 var axios = require("axios");
+var moment = require("moment")
 
 var action = process.argv[2];
 var userInput = process.argv;
@@ -13,6 +15,7 @@ var concertDetails = "";
 var spotifyDetails = "";
 var movieDetails = "";
 var ratings = [];
+var ratingNoBody = []
 
 switch (action) {
   case "concert-this":
@@ -46,15 +49,18 @@ function concertThis(){
   console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
-      console.log(response.data);
+      // console.log(response.data);
       // console.log(response.data.length)
       // console.log(response.data[0].venue)
       var resultLength = response.data.length
       for(var j = 0; j < resultLength; j++) {
+        var thisDate = response.data[j].datetime
+        var converted = moment(thisDate).format("ddd DD-MMM-YYYY, hh:mm A")
         console.log(`
           Venue's name: ${response.data[j].venue.name}
           Location: ${response.data[j].venue.country +", "+ response.data[j].venue.city}
-          Date: ${response.data[j].datetime}
+          Date: ${converted}
+
         `)
       }
     }).catch(function(error) {
@@ -73,6 +79,8 @@ function concertThis(){
       console.log(error.config);
     });  
 }
+
+// SPOTIFY
 function spotifyThis(){
   for (var i = 3; i < userInput.length; i++) {
     if (i > 3 && i < userInput.length) {
@@ -82,9 +90,15 @@ function spotifyThis(){
     }
   }
   console.log(spotifyDetails);
+  spotify.search({ type: 'track', query: spotifyDetails})
+    .then(function(response) {
+    console.log(response);
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
   
 }
-
 
 // MOVIE
 function movieThis(){
@@ -100,7 +114,30 @@ function movieThis(){
   console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
-      // console.log(response.data);
+      if(movieDetails === "") {
+        var queryUrl = "http://www.omdbapi.com/?t=mr.nobody&y=&plot=short&apikey=trilogy";
+        axios.get(queryUrl).then(
+          function(response){
+            // console.log(response)
+            var resultLength = response.data.Ratings.length
+            for(var j = 0; j < resultLength; j++){
+              ratingNoBody.push(response.data.Ratings[j].Value); 
+            }
+            console.log(`
+              You should watch 
+              Title: ${response.data.Title}
+              Year: ${response.data.Year}
+              IMDB Rating: ${response.data.imdbRating}
+              Rotten Tomatoes Rating: ${ratingNoBody}
+              Country: ${response.data.Country}
+              Language: ${response.data.Language}
+              Plot: ${response.data.Plot}
+              Actors: ${response.data.Actors}
+              Link: http://www.imdb.com/title/tt0485947/
+              It's also on Netflix
+            `)
+          })
+      } else {
       var resultLength = response.data.Ratings.length
       for(var j = 0; j < resultLength; j++){
         ratings.push(response.data.Ratings[j].Value); 
@@ -115,6 +152,7 @@ function movieThis(){
         Plot: ${response.data.Plot}
         Actors: ${response.data.Actors}
       `)
+      }      
     })
     .catch(function(error) {
       if (error.response) {
