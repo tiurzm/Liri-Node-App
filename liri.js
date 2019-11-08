@@ -1,19 +1,18 @@
 // LIRI will search Spotify for songs, Bands in Town for concerts, and OMDB for movies.
 
 require("dotenv").config();
-var keys = require("./keys.js");
-var Spotify = require('node-spotify-api');
-var spotify = new Spotify(keys.spotify);
 
+var keys = require("./keys.js");
+var fs = require("fs");
 var axios = require("axios");
 var moment = require("moment")
 
-var action = process.argv[2];
-var userInput = process.argv;
+var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify);
 
-var concertDetails = "";
-var spotifyDetails = "";
-var movieDetails = "";
+var action = process.argv[2];
+var userInput = process.argv.slice(3).join(" ");
+
 var ratings = [];
 var ratingNoBody = []
 
@@ -37,15 +36,7 @@ switch (action) {
 
 // CONCERT
 function concertThis(){
-  for (var i = 3; i < userInput.length; i++) {
-    if (i > 3 && i < userInput.length) {
-      concertDetails = concertDetails + userInput[i];
-    } else {
-      concertDetails += userInput[i];
-    }
-  }
-  // console.log(concertDetails)
-  var queryUrl = "https://rest.bandsintown.com/artists/" + concertDetails + "/events?app_id=codingbootcamp"
+  var queryUrl = "https://rest.bandsintown.com/artists/" + userInput + "/events?app_id=codingbootcamp"
   // console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
@@ -57,6 +48,7 @@ function concertThis(){
         console.log(`
           Venue's name: ${response.data[j].venue.name}
           Location: ${response.data[j].venue.city+", "+response.data[j].venue.country}
+          Region: ${response.data[j].venue.region}
           Date: ${converted}
         `)
       }
@@ -78,46 +70,41 @@ function concertThis(){
 }
 
 // SPOTIFY
-function spotifyThis(){
-  for (var i = 3; i < userInput.length; i++) {
-    if (i > 3 && i < userInput.length) {
-      spotifyDetails = spotifyDetails + userInput[i];
-    } else {
-      spotifyDetails += userInput[i];
-    }
-  }
+function spotifyThis(a){
   // console.log(spotifyDetails);
-  spotify.search({ type: 'track', query: spotifyDetails})
+  spotify.search({ type: 'track', query: userInput || a})
     .then(function(response) {
-      // console.log(response.tracks.items);
+      // console.log(response.tracks);
       console.log(`
         Artist: ${response.tracks.items[0].album.artists[0].name}
         Title: ${response.tracks.items[0].name} 
         Preview: ${response.tracks.items[0].external_urls.spotify}
         Album: ${response.tracks.items[0].album.name}
       `)
-  })
-  .catch(function(err) {
-    console.log(err);
-  });
-  
+  }).catch(function(error) {
+    if (error.response) {
+      console.log("---------------Data---------------");
+      console.log(error.response.data);
+      console.log("---------------Status---------------");
+      console.log(error.response.status);
+      console.log("---------------Status---------------");
+      console.log(error.response.headers);
+    } else if (error.request) {
+      console.log(error.request);
+    } else {
+      console.log("Error", error.message);
+    }
+    console.log(error.config);
+  }); 
 }
 
 // MOVIE
 function movieThis(){
-  for (var i = 3; i < userInput.length; i++) {
-    if (i > 3 && i < userInput.length) {
-      movieDetails = movieDetails + "+" + userInput[i];
-    } else {
-      movieDetails += userInput[i];
-    }
-  }
-  // console.log(movieDetails);
-  var queryUrl = "http://www.omdbapi.com/?t=" + movieDetails + "&y=&plot=short&apikey=trilogy";
+  var queryUrl = "http://www.omdbapi.com/?t=" + userInput + "&y=&plot=short&apikey=trilogy";
   // console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
-      if(movieDetails === "") {
+      if(userInput === "") {
         var queryUrl = "http://www.omdbapi.com/?t=mr.nobody&y=&plot=short&apikey=trilogy";
         axios.get(queryUrl).then(
           function(response){
@@ -177,5 +164,12 @@ function movieThis(){
 
 // it says 
 function itSays(){
-  
+  fs.readFile("./random.txt", "utf8", function(error, data) {
+    if (error) {
+      return console.log(error);
+    }
+    var dataArr = data.split(",");
+    // console.log(dataArr[1]);
+    spotifyThis(dataArr[1]);
+  });
 }
