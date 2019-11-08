@@ -44,23 +44,20 @@ function concertThis(){
       concertDetails += userInput[i];
     }
   }
-  console.log(concertDetails)
+  // console.log(concertDetails)
   var queryUrl = "https://rest.bandsintown.com/artists/" + concertDetails + "/events?app_id=codingbootcamp"
-  console.log(queryUrl)
+  // console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
       // console.log(response.data);
-      // console.log(response.data.length)
-      // console.log(response.data[0].venue)
       var resultLength = response.data.length
       for(var j = 0; j < resultLength; j++) {
         var thisDate = response.data[j].datetime
         var converted = moment(thisDate).format("ddd DD-MMM-YYYY, hh:mm A")
         console.log(`
           Venue's name: ${response.data[j].venue.name}
-          Location: ${response.data[j].venue.country +", "+ response.data[j].venue.city}
+          Location: ${response.data[j].venue.city+", "+response.data[j].venue.country}
           Date: ${converted}
-
         `)
       }
     }).catch(function(error) {
@@ -89,10 +86,16 @@ function spotifyThis(){
       spotifyDetails += userInput[i];
     }
   }
-  console.log(spotifyDetails);
+  // console.log(spotifyDetails);
   spotify.search({ type: 'track', query: spotifyDetails})
     .then(function(response) {
-    console.log(response);
+      // console.log(response.tracks.items);
+      console.log(`
+        Artist: ${response.tracks.items[0].album.artists[0].name}
+        Title: ${response.tracks.items[0].name} 
+        Preview: ${response.tracks.items[0].external_urls.spotify}
+        Album: ${response.tracks.items[0].album.name}
+      `)
   })
   .catch(function(err) {
     console.log(err);
@@ -109,9 +112,9 @@ function movieThis(){
       movieDetails += userInput[i];
     }
   }
-  console.log(movieDetails);
+  // console.log(movieDetails);
   var queryUrl = "http://www.omdbapi.com/?t=" + movieDetails + "&y=&plot=short&apikey=trilogy";
-  console.log(queryUrl)
+  // console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
       if(movieDetails === "") {
@@ -125,6 +128,7 @@ function movieThis(){
             }
             console.log(`
               You should watch 
+        
               Title: ${response.data.Title}
               Year: ${response.data.Year}
               IMDB Rating: ${response.data.imdbRating}
@@ -169,4 +173,9 @@ function movieThis(){
       }
       console.log(error.config);
     });
+}
+
+// it says 
+function itSays(){
+  
 }
