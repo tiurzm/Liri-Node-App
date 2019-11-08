@@ -45,12 +45,17 @@ function concertThis(){
       for(var j = 0; j < resultLength; j++) {
         var thisDate = response.data[j].datetime
         var converted = moment(thisDate).format("ddd DD-MMM-YYYY, hh:mm A")
-        console.log(`
+        const concert = `
           Venue's name: ${response.data[j].venue.name}
           Location: ${response.data[j].venue.city+", "+response.data[j].venue.country}
           Region: ${response.data[j].venue.region}
           Date: ${converted}
-        `)
+        `
+        fs.appendFile("./log.txt", concert, function(err) {
+          if (err)
+            return console.error(err);
+          console.log(concert);
+        });
       }
     }).catch(function(error) {
       if (error.response) {
