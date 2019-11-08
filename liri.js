@@ -48,7 +48,6 @@ function concertThis(){
         const concert = `
           Venue's name: ${response.data[j].venue.name}
           Location: ${response.data[j].venue.city+", "+response.data[j].venue.country}
-          Region: ${response.data[j].venue.region}
           Date: ${converted}
         `
         fs.appendFile("./log.txt", concert, function(err) {
@@ -76,16 +75,36 @@ function concertThis(){
 
 // SPOTIFY
 function spotifyThis(a){
-  // console.log(spotifyDetails);
-  spotify.search({ type: 'track', query: userInput || a})
+  spotify.search({ type: 'track', query: userInput || a || "The Sign"})
     .then(function(response) {
+      console.log(userInput)
+      if (userInput === ""){
+        const sign = `
+          Artist: ${response.tracks.items[4].album.artists[0].name}
+          Title: ${response.tracks.items[4].name} 
+          Preview: ${response.tracks.items[4].external_urls.spotify}
+          Album: ${response.tracks.items[4].album.name}
+        `
+        fs.appendFile("./log.txt", sign, function(err) {
+          if (err)
+            return console.error(err);
+          console.log(sign);
+        });
+        // console.log(response.tracks.items[4].album.artists[0].name)
+      } else {
+        const songs = `
+          Artist: ${response.tracks.items[0].album.artists[0].name}
+          Title: ${response.tracks.items[0].name} 
+          Preview: ${response.tracks.items[0].external_urls.spotify}
+          Album: ${response.tracks.items[0].album.name}
+        `
+        fs.appendFile("./log.txt", songs, function(err) {
+          if (err)
+            return console.error(err);
+          console.log(songs);
+        });
+      }
       // console.log(response.tracks);
-      console.log(`
-        Artist: ${response.tracks.items[0].album.artists[0].name}
-        Title: ${response.tracks.items[0].name} 
-        Preview: ${response.tracks.items[0].external_urls.spotify}
-        Album: ${response.tracks.items[0].album.name}
-      `)
   }).catch(function(error) {
     if (error.response) {
       console.log("---------------Data---------------");
@@ -109,8 +128,8 @@ function movieThis(){
   // console.log(queryUrl)
   axios.get(queryUrl).then(
     function(response) {
+      var queryUrl = "http://www.omdbapi.com/?t=mr.nobody&y=&plot=short&apikey=trilogy";
       if(userInput === "") {
-        var queryUrl = "http://www.omdbapi.com/?t=mr.nobody&y=&plot=short&apikey=trilogy";
         axios.get(queryUrl).then(
           function(response){
             // console.log(response)
@@ -118,7 +137,7 @@ function movieThis(){
             for(var j = 0; j < resultLength; j++){
               ratingNoBody.push(response.data.Ratings[j].Value); 
             }
-            console.log(`
+            const noBody = `
               You should watch 
         
               Title: ${response.data.Title}
@@ -131,14 +150,19 @@ function movieThis(){
               Actors: ${response.data.Actors}
               Link: http://www.imdb.com/title/tt0485947/
               It's also on Netflix
-            `)
+            `
+            fs.appendFile("./log.txt", noBody, function(err) {
+              if (err)
+                return console.error(err);
+              console.log(noBody);
+            });
           })
       } else {
       var resultLength = response.data.Ratings.length
       for(var j = 0; j < resultLength; j++){
         ratings.push(response.data.Ratings[j].Value); 
       }
-      console.log(`
+      const movie = `
         Title: ${response.data.Title}
         Year: ${response.data.Year}
         IMDB Rating: ${response.data.imdbRating}
@@ -147,7 +171,12 @@ function movieThis(){
         Language: ${response.data.Language}
         Plot: ${response.data.Plot}
         Actors: ${response.data.Actors}
-      `)
+      `
+      fs.appendFile("./log.txt", movie, function(err) {
+        if (err)
+          return console.error(err);
+        console.log(movie);
+      });
       }      
     })
     .catch(function(error) {
@@ -169,12 +198,15 @@ function movieThis(){
 
 // it says 
 function itSays(){
-  fs.readFile("./random.txt", "utf8", function(error, data) {
-    if (error) {
-      return console.log(error);
+  fs.readFile("./random.txt", "utf8", function(err, data) {
+    if (err) {
+      return console.log(err);
     }
     var dataArr = data.split(",");
-    // console.log(dataArr[1]);
-    spotifyThis(dataArr[1]);
+    const thisSong = spotifyThis(dataArr[1]);
+    fs.appendFile("./log.txt", thisSong, function(err) {
+      if (err)
+        return console.error(err);
+    });
   });
 }
