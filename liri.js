@@ -75,7 +75,7 @@ function concertThis(){
 
 // SPOTIFY
 function spotifyThis(a){
-  spotify.search({ type: 'track', query: userInput || a || "The Sign"})
+  spotify.search({ type: 'track', query: userInput || a || "The Sign" })
     .then(function(response) {
       console.log(userInput)
       if (userInput === ""){
@@ -85,12 +85,17 @@ function spotifyThis(a){
           Preview: ${response.tracks.items[4].external_urls.spotify}
           Album: ${response.tracks.items[4].album.name}
         `
+        // const sign = `
+        //   Artist: ${response.tracks.items[0].album.artists[0].name}
+        //   Title: ${response.tracks.items[0].name} 
+        //   Preview: ${response.tracks.items[0].external_urls.spotify}
+        //   Album: ${response.tracks.items[0].album.name}
+        // `
         fs.appendFile("./log.txt", sign, function(err) {
           if (err)
             return console.error(err);
           console.log(sign);
         });
-        // console.log(response.tracks.items[4].album.artists[0].name)
       } else {
         const songs = `
           Artist: ${response.tracks.items[0].album.artists[0].name}
@@ -203,10 +208,6 @@ function itSays(){
       return console.log(err);
     }
     var dataArr = data.split(",");
-    const thisSong = spotifyThis(dataArr[1]);
-    fs.appendFile("./log.txt", thisSong, function(err) {
-      if (err)
-        return console.error(err);
-    });
+    spotifyThis(dataArr[1]);
   });
 }
