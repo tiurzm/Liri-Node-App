@@ -73,17 +73,17 @@ function concertThis(){
     });  
 }
 
-// SPOTIFY
+// SPOTIF1
 function spotifyThis(a){
-  spotify.search({ type: 'track', query: userInput || a || "The Sign" })
+  spotify.search({ type: 'track', query: userInput || a || `"The Sign"`})
     .then(function(response) {
       console.log(userInput)
       if (userInput === ""){
         const sign = `
-          Artist: ${response.tracks.items[0].album.artists[0].name}
-          Title: ${response.tracks.items[0].name} 
-          Preview: ${response.tracks.items[0].external_urls.spotify}
-          Album: ${response.tracks.items[0].album.name}
+          Artist: ${response.tracks.items[1].album.artists[0].name}
+          Title: ${response.tracks.items[1].name} 
+          Preview: ${response.tracks.items[1].external_urls.spotify}
+          Album: ${response.tracks.items[1].album.name}
         `
         fs.appendFile("./log.txt", sign, function(err) {
           if (err)
