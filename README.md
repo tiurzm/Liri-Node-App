@@ -1,6 +1,6 @@
 # Liri-Node-App
 
-Liri is a node application that search information for movie, concert and song.
+Liri is a node application that searchs information for movie, concert and song.
 
 You can use this application with 4 commands on your command line:
 1. node liri.js concert-this artist/band-name
